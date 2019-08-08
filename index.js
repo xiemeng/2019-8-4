@@ -13,7 +13,16 @@
 		x: 0,
 		y: 0
 	}
-	var resourceManager = prepare();
+	const monsterLocation1 = {  // 魔王1的位置
+		x:100,
+		y:100
+	}
+	const monsterLocation2 = {  // 魔王2的位置
+		x:200,
+		y:200
+	}
+	let hero,moshen,moshenz;// 英雄
+	var resourceManager = prepare();  // 绘制
 	resourceManager.getResource(drawImg,{x:0,y:0})
 	function location(direction) {
 		switch (direction) {
@@ -41,7 +50,11 @@
 				break;
 
 		}
+		// 进行碰撞检查，检查到碰撞就进行攻击
 		console.log(heroLocation)
+		if(Math.abs(monsterLocation1.x-heroLocation.x) <=40 && Math.abs(monsterLocation1.y-heroLocation.y) <=40){
+			hero.attack(moshen)
+		}
 		resourceManager.getResource(drawImg, heroLocation)
 	}
 	document.onkeydown = function(event) {
@@ -93,7 +106,24 @@
 		绘制图像
 	*/
 	function drawImg(context, heroImg, allSpriteImg, heroLocation) {
-		var draw = function() {
+		function Person(img,context,imgPos,rect,name){  // 超类，所有的人物对象
+			this.name = name;
+			this.img = img;  // 人物图片
+			this.context = context;  // 绘制的context对象
+			this.imgPos = {  //人物的位置和宽高
+				x: imgPos.x, // 858
+				y: imgPos.y,  // 529
+				width: 32,
+				height: 32
+			}
+			this.rect = {  // 绘制的位置
+				x: rect.x,
+				y: rect.y,
+				width: 40,
+				height: 40
+			}
+		}
+		Person.prototype.draw = function(){  // 绘制方法
 			this.context.drawImage(
 				this.img,
 				this.imgPos.x,
@@ -106,41 +136,24 @@
 				this.rect.height
 			)
 		}
-		var hero = {
-			img: heroImg,
-			context: context,
-			imgPos: {
-				x: 0,
-				y: 0,
-				width: 32,
-				height: 32
-			},
-			rect: {
-				x: heroLocation.x,
-				y: heroLocation.y,
-				width: 40,
-				height: 40
-			},
-			draw: draw
+		function Hero(img,context,imgPos,rect,name){ // 英雄类
+			Person.call(this,img,context,imgPos,rect,name)
 		}
-		var monster = {
-			img: allSpriteImg,
-			context: context,
-			imgPos: {
-				x: 858,
-				y: 529,
-				width: 32,
-				height: 32
-			},
-			rect: {
-				x: 100,
-				y: 100,
-				width: 40,
-				height: 40
-			},
-			draw: draw
+		Hero.prototype = Object.create(Person.prototype);
+		Hero.prototype.attack = function(monsterObj){  // 攻击方法
+			alert(`${this.name}攻击了${monsterObj.name}`)
 		}
+		
+		function Monster(img,context,imgPos,rect,name){ // 魔王类
+			Person.call(this,img,context,imgPos,rect,name)
+		}
+		Monster.prototype = Object.create(Person.prototype);
+		
+		hero = new Hero(heroImg,context,{x:0,y:0},heroLocation,'高达');// 创建一个英雄
+		moshen = new Hero(allSpriteImg,context,{x:858,y:529},{x:monsterLocation1.x,y:monsterLocation1.y},'魔神');// 创建一个魔王
+		moshenz = new Hero(allSpriteImg,context,{x:858,y:495},{x:monsterLocation2.x,y:monsterLocation2.y},'魔神z');// 创建一个魔王
 		hero.draw();
-		monster.draw();
+		moshen.draw();
+		moshenz.draw();
 	}
 })()
